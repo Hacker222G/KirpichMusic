@@ -10,7 +10,13 @@ const tracks = [
         artist: "Kasane Teto",
         file: "music/tetoris.mp3",
         cover: "covers/tetoris.jpg"
-    }
+    },
+    {
+        title: "ТРАМБОЛОН",
+        artist: "maxxytren, bulk_machine",
+        file: "music/trambolon.mp3",
+        cover: "covers/trambolon.jpg"
+    },
 ];
 
 const audio = new Audio();
