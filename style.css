@@ -7,6 +7,7 @@
     --glass: rgba(255, 255, 255, 0.05);
     --gradient: linear-gradient(45deg, var(--primary), var(--secondary));
     --base-size: 14px;
+    --container-width: 1200px;
 }
 
 [data-theme="light"] {
@@ -16,167 +17,242 @@
     --glass: rgba(0, 0, 0, 0.05);
 }
 
-body {
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
     font-family: 'Inter', sans-serif;
     background: var(--background);
     color: var(--text);
-    transition: all 0.3s ease;
-    font-size: var(--base-size);
+    line-height: 1.5;
+    min-height: 100vh;
 }
 
+/* Основной контейнер */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Шапка */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 5%;
-    background: var(--glass);
-    backdrop-filter: blur(10px);
+    padding: 15px 0;
+    margin-bottom: 30px;
 }
 
 .logo {
-    height: 30px;
-    filter: drop-shadow(0 0 15px var(--primary));
-}
-
-.hero {
-    text-align: center;
-    padding: 2rem 5%;
-}
-
-.hero-title {
-    font-size: 1.5rem;
-    background: var(--gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 1rem 0;
-}
-
-.search-bar {
-    max-width: 500px;
+    height: 40px;
+    display: block;
     margin: 0 auto;
+}
+
+/* Основное содержимое */
+.main-content {
     position: relative;
+    padding-bottom: 120px;
+}
+
+/* Поисковая строка */
+.search-bar {
+    max-width: 600px;
+    margin: 0 auto 30px;
 }
 
 .search-bar input {
     width: 100%;
-    padding: 0.8rem 1.5rem;
+    padding: 12px 20px;
     border: none;
     border-radius: 25px;
     background: var(--surface);
     color: var(--text);
-    font-size: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 16px;
 }
 
+/* Сетка плейлиста */
 .playlist-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 1rem;
-    padding: 1rem 5%;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
 .track-card {
     background: var(--surface);
-    border-radius: 12px;
-    padding: 1rem;
-    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 10px;
+    padding: 15px;
     cursor: pointer;
+    transition: transform 0.2s;
 }
 
 .track-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.player-glass {
+.track-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+/* Плеер */
+.player-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     background: var(--glass);
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin: 1rem 5%;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    padding: 15px 0;
+}
+
+.player-content {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 30px;
 }
 
 .cover-art {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 1rem;
-    border-radius: 12px;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
     overflow: hidden;
+    position: relative;
 }
 
 .cover-art img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 12px;
 }
 
-.vinyl-effect {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5));
-    border-radius: 50%;
-    animation: rotate 20s linear infinite;
+.track-info {
+    flex-grow: 1;
+    min-width: 200px;
 }
 
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.track-info h2 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.track-info p {
+    font-size: 14px;
+    color: #888;
+}
+
+/* Элементы управления */
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .control-btn {
-    background: var(--surface);
-    border: none;
     width: 40px;
     height: 40px;
+    border: none;
     border-radius: 50%;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
 .control-btn.main {
     width: 50px;
     height: 50px;
     background: var(--gradient);
-    color: white;
 }
 
+/* Прогресс-бар */
+.progress-container {
+    flex-grow: 1;
+    max-width: 400px;
+}
+
+.progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: var(--gradient);
+    width: 0;
+    transition: width 0.1s linear;
+}
+
+/* Громкость */
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 140px;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 4px;
+    accent-color: var(--primary);
+}
+
+/* Переключатель темы */
 .theme-switcher {
     position: fixed;
-    bottom: 20px;
+    top: 20px;
     right: 20px;
-    background: var(--surface);
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    background: var(--surface);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 1280px) {
     :root {
-        --base-size: 12px;
+        --container-width: 90%;
     }
     
-    .player-glass {
-        margin: 0.5rem;
-        padding: 1rem;
+    .player-content {
+        gap: 15px;
+    }
+    
+    .track-info {
+        min-width: 160px;
+    }
+}
+
+@media (max-width: 768px) {
+    .playlist-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+    }
+    
+    .player-content {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 10px;
     }
     
     .controls {
-        gap: 10px;
+        order: 1;
+        width: 100%;
+        justify-content: center;
     }
 }
