@@ -14,15 +14,12 @@
     </div>
     
     <header class="header">
-        <img src="logo.svg" alt="Neon Music" class="logo">
-        <div class="user-menu">
-            <div class="user-avatar"></div>
-        </div>
+        <img src="logo.svg" alt="KirpichMusic" class="logo">
     </header>
 
     <main class="main-content">
         <section class="hero">
-            <h1 class="hero-title">KirpichMusic - Строим музыку из кирпичей говна и палок</h1>
+            <h1 class="hero-title">Музыкальный плеер</h1>
             <div class="search-bar">
                 <input type="text" placeholder="Поиск треков...">
                 <i class="fas fa-search"></i>
@@ -30,11 +27,9 @@
         </section>
 
         <section class="playlists">
-            <h2 class="section-title">Ваши плейлисты</h2>
+            <h2 class="section-title">Плейлист</h2>
             <div class="playlist-grid" id="playlist"></div>
         </section>
-
-        <div class="visualizer"></div>
 
         <div class="player-container">
             <div class="player-glass">
@@ -51,13 +46,13 @@
                         <div class="progress-bar" id="progress"></div>
                     </div>
                     <div class="controls">
-                        <button class="control-btn large" onclick="skip(-10)">
+                        <button class="control-btn" onclick="skip(-10)">
                             <i class="fas fa-step-backward"></i>
                         </button>
                         <button class="control-btn main" id="playBtn" onclick="togglePlay()">
                             <i class="fas fa-play"></i>
                         </button>
-                        <button class="control-btn large" onclick="skip(10)">
+                        <button class="control-btn" onclick="skip(10)">
                             <i class="fas fa-step-forward"></i>
                         </button>
                     </div>
