@@ -30,10 +30,22 @@ const audio = document.getElementById('audio');
 let currentTrack = 0;
 let audioContext, gainNode;
 
+function showError(message) {
+    const errorElement = document.getElementById('errorMessage');
+    errorElement.textContent = message;
+    errorElement.classList.add('visible');
+    setTimeout(() => errorElement.classList.remove('visible'), 3000);
+}
+
 function initAudioContext() {
     if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         gainNode = audioContext.createGain();
+        if (audio && !source) {
+            source = audioContext.createMediaElementSource(audio);
+            source.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+        }
     }
 }
 
@@ -57,7 +69,10 @@ function initPlaylist() {
 }
 
 function initVolume() {
+    initAudioContext();
     const volume = document.getElementById('volume');
+    if (!gainNode) return;
+    
     volume.addEventListener('input', (e) => {
         gainNode.gain.value = e.target.value;
         localStorage.setItem('volume', e.target.value);
@@ -73,7 +88,9 @@ function initProgressBar() {
     progressBar.addEventListener('click', (e) => {
         const rect = progressBar.getBoundingClientRect();
         const percent = (e.clientX - rect.left) / rect.width;
-        audio.currentTime = percent * audio.duration;
+        if (audio.duration) {
+            audio.currentTime = percent * audio.duration;
+        }
     });
 }
 
@@ -101,22 +118,34 @@ function toggleTheme() {
 }
 
 function playTrack(index) {
-    currentTrack = index;
-    const track = tracks[index];
-    audio.src = track.file;
-    document.getElementById('track-title').textContent = track.title;
-    document.getElementById('track-artist').textContent = track.artist;
-    document.getElementById('player-cover').src = track.cover || config.defaultCover;
-    audio.play().then(() => {
-        document.getElementById('player-cover').classList.add('playing');
-    });
-    updatePlayButton(true);
+    try {
+        currentTrack = index;
+        const track = tracks[index];
+        if (!track.file) throw new Error('Трек не найден');
+        
+        audio.src = track.file;
+        document.getElementById('track-title').textContent = track.title;
+        document.getElementById('track-artist').textContent = track.artist;
+        document.getElementById('player-cover').src = track.cover || config.defaultCover;
+        
+        audio.play().then(() => {
+            document.getElementById('player-cover').classList.add('playing');
+        }).catch(error => {
+            showError('Ошибка воспроизведения: ' + error.message);
+        });
+        
+        updatePlayButton(true);
+    } catch (error) {
+        showError(error.message);
+    }
 }
 
 function togglePlay() {
-    if(audio.paused) {
+    if (audio.paused) {
         audio.play().then(() => {
             document.getElementById('player-cover').classList.add('playing');
+        }).catch(error => {
+            showError('Ошибка воспроизведения: ' + error.message);
         });
         updatePlayButton(true);
     } else {
@@ -132,31 +161,45 @@ function updatePlayButton(playing) {
 }
 
 function skip(seconds) {
-    audio.currentTime += seconds;
+    if (audio.duration) {
+        audio.currentTime = Math.min(Math.max(audio.currentTime + seconds, 0), audio.duration);
+    }
 }
 
 function toggleMute() {
     audio.muted = !audio.muted;
-    document.getElementById('volumeIcon').className = 
-        audio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+    const volumeIcon = document.getElementById('volumeIcon');
+    volumeIcon.classList.toggle('muted', audio.muted);
+    volumeIcon.className = audio.muted 
+        ? 'fas fa-volume-mute' 
+        : 'fas fa-volume-up';
 }
 
 audio.addEventListener('play', () => {
     if (!source) {
         initAudioContext();
-        source = audioContext.createMediaElementSource(audio);
-        source.connect(gainNode);
-        gainNode.connect(audioContext.destination);
     }
 });
 
 audio.ontimeupdate = () => {
-    const progress = (audio.currentTime / audio.duration) * 100;
-    document.getElementById('progress').style.width = `${progress}%`;
+    if (audio.duration && !isNaN(audio.duration)) {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        document.getElementById('progress').style.width = `${progress}%`;
+    }
 };
 
 audio.onended = () => {
-    if(currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
+    if (currentTrack < tracks.length - 1) {
+        playTrack(currentTrack + 1);
+    } else {
+        audio.pause();
+        updatePlayButton(false);
+        document.getElementById('player-cover').classList.remove('playing');
+    }
+};
+
+audio.onerror = () => {
+    showError('Ошибка загрузки аудио файла');
 };
 
 function init() {
