@@ -214,6 +214,22 @@ h1 {
     -webkit-text-fill-color: transparent;
 }
 
+.error-message {
+    color: #ff4444;
+    padding: 10px;
+    text-align: center;
+    display: none;
+}
+
+.error-message.visible {
+    display: block;
+}
+
+.volume-container button.muted {
+    opacity: 0.6;
+    filter: grayscale(0.8);
+}
+
 @media (max-width: 768px) {
     .player {
         flex-direction: column;
