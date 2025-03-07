@@ -6,6 +6,7 @@
     --text: #ffffff;
     --glass: rgba(255, 255, 255, 0.05);
     --gradient: linear-gradient(45deg, var(--primary), var(--secondary));
+    --base-size: 14px;
 }
 
 [data-theme="light"] {
@@ -21,90 +22,89 @@ body {
     background: var(--background);
     color: var(--text);
     transition: all 0.3s ease;
+    font-size: var(--base-size);
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 5%;
+    padding: 1rem 5%;
     background: var(--glass);
     backdrop-filter: blur(10px);
 }
 
 .logo {
-    height: 40px;
+    height: 30px;
     filter: drop-shadow(0 0 15px var(--primary));
 }
 
 .hero {
     text-align: center;
-    padding: 4rem 5%;
+    padding: 2rem 5%;
 }
 
 .hero-title {
-    font-size: 3rem;
+    font-size: 1.5rem;
     background: var(--gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 2rem;
+    margin: 1rem 0;
 }
 
 .search-bar {
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
     position: relative;
 }
 
 .search-bar input {
     width: 100%;
-    padding: 1rem 2rem;
+    padding: 0.8rem 1.5rem;
     border: none;
-    border-radius: 50px;
+    border-radius: 25px;
     background: var(--surface);
     color: var(--text);
-    font-size: 1.1rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .playlist-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 2rem;
-    padding: 2rem 5%;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    padding: 1rem 5%;
 }
 
 .track-card {
     background: var(--surface);
-    border-radius: 15px;
-    padding: 1.5rem;
-    transition: transform 0.3s, box-shadow 0.3s;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
-    position: relative;
-    overflow: hidden;
 }
 
 .track-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .player-glass {
     background: var(--glass);
     backdrop-filter: blur(20px);
-    border-radius: 25px;
-    padding: 2rem;
-    margin: 2rem 5%;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin: 1rem 5%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cover-art {
     position: relative;
-    width: 200px;
-    height: 200px;
-    margin: 0 auto 2rem;
-    border-radius: 15px;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1rem;
+    border-radius: 12px;
     overflow: hidden;
 }
 
@@ -112,7 +112,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 15px;
+    border-radius: 12px;
 }
 
 .vinyl-effect {
@@ -121,7 +121,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5)));
+    background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5));
     border-radius: 50%;
     animation: rotate 20s linear infinite;
 }
@@ -134,50 +134,49 @@ body {
 .control-btn {
     background: var(--surface);
     border: none;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .control-btn.main {
-    width: 70px;
-    height: 70px;
+    width: 50px;
+    height: 50px;
     background: var(--gradient);
     color: white;
 }
 
 .theme-switcher {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 20px;
+    right: 20px;
     background: var(--surface);
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-@media (max-width: 768px) {
-    .hero-title {
-        font-size: 2rem;
+@media (max-width: 480px) {
+    :root {
+        --base-size: 12px;
     }
     
     .player-glass {
-        padding: 1.5rem;
-        margin: 1rem;
+        margin: 0.5rem;
+        padding: 1rem;
     }
     
-    .cover-art {
-        width: 150px;
-        height: 150px;
+    .controls {
+        gap: 10px;
     }
 }
