@@ -24,13 +24,13 @@ function initAudioContext() {
     const source = audioContext.createMediaElementSource(audio);
     source.connect(analyser);
     analyser.connect(audioContext.destination);
-    analyser.fftSize = 64;
+    analyser.fftSize = 256;
     dataArray = new Uint8Array(analyser.frequencyBinCount);
 }
 
 function createVisualizer() {
     visualizer.innerHTML = '';
-    for (let i = 0; i < 32; i++) {
+    for (let i = 0; i < 64; i++) {
         const bar = document.createElement('div');
         bar.className = 'visualizer-bar';
         visualizer.appendChild(bar);
@@ -54,7 +54,7 @@ function updateVisualizer() {
 function initPlaylist() {
     const playlist = document.getElementById('playlist');
     playlist.innerHTML = tracks.map((track, index) => `
-        <div class="track-card" onclick="playTrack(${index})">
+        <div class="track-card" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event, ${index})" onclick="playTrack(${index})">
             <img src="${track.cover}" alt="${track.title}">
             <h3>${track.title}</h3>
             <p>${track.artist}</p>
@@ -95,6 +95,17 @@ function skip(seconds) {
     audio.currentTime += seconds;
 }
 
+function seek(event) {
+    const progressContainer = document.querySelector('.progress-container');
+    const progressBar = document.querySelector('.progress-bar');
+    const rect = progressContainer.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const width = progressBar.offsetWidth;
+    const duration = audio.duration;
+    const seekTime = (offsetX / width) * duration;
+    audio.currentTime = seekTime;
+}
+
 function toggleTheme() {
     const body = document.body;
     const isDark = body.getAttribute('data-theme') !== 'light';
@@ -116,6 +127,23 @@ function initTheme() {
         document.body.setAttribute('data-theme', 'light');
         document.getElementById('theme-icon').className = 'fas fa-sun';
     }
+}
+
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+function drag(event) {
+    event.dataTransfer.setData("text", event.target.dataset.index);
+}
+
+function drop(event, index) {
+    event.preventDefault();
+    const fromIndex = event.dataTransfer.getData("text");
+    const temp = tracks[fromIndex];
+    tracks[fromIndex] = tracks[index];
+    tracks[index] = temp;
+    initPlaylist();
 }
 
 // Инициализация
