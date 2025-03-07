@@ -16,6 +16,11 @@ const tracks = [
 const audio = new Audio();
 let currentTrack = 0;
 
+function handleAudioError(error) {
+    console.error('Audio error:', error);
+    alert('Ошибка воспроизведения аудио');
+}
+
 function initPlaylist() {
     const playlist = document.getElementById('playlist');
     playlist.innerHTML = tracks.map((track, index) => `
@@ -28,13 +33,24 @@ function initPlaylist() {
 }
 
 function playTrack(index) {
-    currentTrack = index;
-    const track = tracks[index];
-    audio.src = track.file;
-    document.getElementById('track-title').textContent = track.title;
-    document.getElementById('track-artist').textContent = track.artist;
-    document.getElementById('player-cover').src = track.cover;
-    audio.play();
+    try {
+        if (index < 0 || index >= tracks.length) return;
+        
+        currentTrack = index;
+        const track = tracks[index];
+        
+        if (!track.file) throw new Error('Файл трека не найден');
+        
+        audio.src = track.file;
+        audio.play().catch(handleAudioError);
+        
+        document.getElementById('track-title').textContent = track.title;
+        document.getElementById('track-artist').textContent = track.artist;
+        document.getElementById('player-cover').src = track.cover;
+        
+    } catch (error) {
+        handleAudioError(error);
+    }
 }
 
 function togglePlay() {
@@ -80,6 +96,13 @@ function initTheme() {
     }
 }
 
+function preloadCovers() {
+    tracks.forEach(track => {
+        const img = new Image();
+        img.src = track.cover;
+    });
+}
+
 audio.addEventListener('timeupdate', () => {
     const progress = (audio.currentTime / audio.duration) * 100 || 0;
     document.getElementById('progress').style.width = `${progress}%`;
@@ -89,10 +112,14 @@ audio.addEventListener('ended', () => {
     if (currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
 });
 
-document.getElementById('volume').addEventListener('input', (e) => {
-    audio.volume = e.target.value;
+document.getElementById('volume').addEventListener('input', function(e) {
+    audio.volume = Math.min(3, Math.max(0, parseFloat(e.target.value)));
 });
+
+audio.addEventListener('error', handleAudioError);
 
 // Инициализация
 initPlaylist();
 initTheme();
+preloadCovers();
+audio.volume = 0.5;
