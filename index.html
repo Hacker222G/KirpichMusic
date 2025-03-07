@@ -17,11 +17,12 @@
 
     <div class="container">
         <h1>Музыка</h1>
+        <div class="error-message" id="errorMessage"></div>
         <div class="playlist" id="playlist"></div>
     </div>
 
     <div class="player" id="player">
-        <img class="player-cover" id="player-cover" src="covers/default.jpg" alt="Обложка">
+        <img class="player-cover" id="player-cover" src="covers/default.jpg" alt="Обложка" onerror="this.src='covers/default.jpg'">
         <div class="player-controls">
             <div class="track-info">
                 <h3 id="track-title">Выберите трек</h3>
@@ -42,7 +43,7 @@
         </div>
     </div>
 
-    <audio id="audio"></audio>
+    <audio id="audio" onerror="showError('Ошибка загрузки аудио')"></audio>
     <script src="script.js"></script>
 </body>
 </html>
