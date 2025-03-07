@@ -13,9 +13,19 @@
             --text: #ffffff;
         }
 
+        /* Добавлен логотип */
+        .logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            height: 40px;
+            z-index: 1000;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
         body {
             margin: 0;
-            padding: 0 0 100px;
+            padding: 60px 0 100px;
             font-family: 'Arial', sans-serif;
             background: var(--background);
             color: var(--text);
@@ -38,12 +48,15 @@
             background: var(--surface);
             padding: 15px;
             border-radius: 8px;
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
         .track-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
         .cover {
@@ -51,6 +64,7 @@
             aspect-ratio: 1;
             border-radius: 4px;
             margin-bottom: 12px;
+            object-fit: cover; /* Фикс для обложек */
         }
 
         .player {
@@ -66,10 +80,21 @@
             box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
         }
 
+        /* Анимация вращения обложки */
+        .player-cover.playing {
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .player-cover {
             width: 60px;
             height: 60px;
-            border-radius: 4px;
+            border-radius: 50%;
+            transition: border-radius 0.3s;
         }
 
         .player-controls {
@@ -81,6 +106,7 @@
             background: #404040;
             margin: 10px 0;
             border-radius: 2px;
+            cursor: pointer;
         }
 
         .progress {
@@ -103,17 +129,38 @@
             font-size: 20px;
             cursor: pointer;
             padding: 10px;
+            transition: color 0.3s;
+        }
+
+        button:hover {
+            color: var(--primary);
         }
 
         .track-info h3 {
             margin: 0;
             font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .track-info p {
             margin: 4px 0 0;
             color: #a0a0a0;
             font-size: 14px;
+        }
+
+        /* Новые фишки */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 120px;
+        }
+
+        #volume {
+            width: 100%;
+            accent-color: var(--primary);
         }
 
         @media (max-width: 600px) {
@@ -130,8 +177,11 @@
     </style>
 </head>
 <body>
+    <!-- Логотип (путь можно изменить) -->
+    <img class="logo" src="logo.png" alt="Логотип">
+
     <div class="container">
-        <h1>Музыка</h1>
+        <h1>М</h1>
         <div class="playlist" id="playlist"></div>
     </div>
 
@@ -142,13 +192,17 @@
                 <h3 id="track-title">Выберите трек</h3>
                 <p id="track-artist">-</p>
             </div>
-            <div class="progress-bar">
+            <div class="progress-bar" id="progressBar">
                 <div class="progress" id="progress"></div>
             </div>
             <div class="controls">
                 <button onclick="skip(-10)"><i class="fas fa-backward"></i></button>
                 <button onclick="togglePlay()" id="playBtn"><i class="fas fa-play"></i></button>
                 <button onclick="skip(10)"><i class="fas fa-forward"></i></button>
+                <div class="volume-container">
+                    <button onclick="toggleMute()"><i class="fas fa-volume-up" id="volumeIcon"></i></button>
+                    <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+                </div>
             </div>
         </div>
     </div>
@@ -156,10 +210,16 @@
     <audio id="audio"></audio>
 
     <script>
+        // Конфигурация (можно менять)
+        const config = {
+            logoPath: "logo.png", // Путь к логотипу
+            defaultCover: "covers/default.jpg" // Дефолтная обложка
+        };
+
         const tracks = [
             {
                 title: "Konton Boogie",
-                artist: "Kasane Teto" ,
+                artist: "Kasane Teto",
                 file: "music/boogie.mp3",
                 cover: "covers/boogie.jpg"
             },
@@ -173,8 +233,19 @@
 
         const audio = document.getElementById('audio');
         let currentTrack = 0;
+        let isDragging = false;
 
-        // Инициализация плейлиста
+        // Инициализация
+        function init() {
+            // Установка логотипа
+            document.querySelector('.logo').src = config.logoPath;
+            
+            initPlaylist();
+            initVolume();
+            initProgressBar();
+        }
+
+        // Плейлист
         function initPlaylist() {
             const playlist = document.getElementById('playlist');
             
@@ -182,7 +253,9 @@
                 const card = document.createElement('div');
                 card.className = 'track-card';
                 card.innerHTML = `
-                    <img class="cover" src="${track.cover}" alt="${track.title}">
+                    <img class="cover" src="${track.cover || config.defaultCover}" 
+                         alt="${track.title}" 
+                         onerror="this.src='${config.defaultCover}'">
                     <h3>${track.title}</h3>
                     <p>${track.artist}</p>
                 `;
@@ -198,18 +271,54 @@
             audio.src = track.file;
             document.getElementById('track-title').textContent = track.title;
             document.getElementById('track-artist').textContent = track.artist;
-            document.getElementById('player-cover').src = track.cover;
-            audio.play();
+            document.getElementById('player-cover').src = track.cover || config.defaultCover;
+            audio.play().then(() => {
+                document.getElementById('player-cover').classList.add('playing');
+            });
             updatePlayButton(true);
+        }
+
+        // Громкость
+        function initVolume() {
+            const volume = document.getElementById('volume');
+            volume.addEventListener('input', (e) => {
+                audio.volume = e.target.value;
+                localStorage.setItem('volume', e.target.value);
+            });
+            
+            // Восстановление громкости
+            const savedVolume = localStorage.getItem('volume') || 1;
+            audio.volume = savedVolume;
+            volume.value = savedVolume;
+        }
+
+        function toggleMute() {
+            audio.muted = !audio.muted;
+            document.getElementById('volumeIcon').className = 
+                audio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+        }
+
+        // Прогресс-бар
+        function initProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            
+            progressBar.addEventListener('click', (e) => {
+                const rect = progressBar.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audio.currentTime = percent * audio.duration;
+            });
         }
 
         // Управление воспроизведением
         function togglePlay() {
             if(audio.paused) {
-                audio.play();
+                audio.play().then(() => {
+                    document.getElementById('player-cover').classList.add('playing');
+                });
                 updatePlayButton(true);
             } else {
                 audio.pause();
+                document.getElementById('player-cover').classList.remove('playing');
                 updatePlayButton(false);
             }
         }
@@ -226,8 +335,10 @@
 
         // Обновление прогресса
         audio.ontimeupdate = () => {
-            const progress = (audio.currentTime / audio.duration) * 100;
-            document.getElementById('progress').style.width = `${progress}%`;
+            if(!isDragging) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progress').style.width = `${progress}%`;
+            }
         };
 
         // Следующий трек при завершении
@@ -235,8 +346,8 @@
             if(currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
         };
 
-        // Инициализация
-        initPlaylist();
+        // Запуск
+        init();
     </script>
 </body>
 </html>
