@@ -30,6 +30,12 @@ const audio = document.getElementById('audio');
 let currentTrack = 0;
 let audioContext, gainNode;
 
+// Добавим глобальный обработчик ошибок
+window.onerror = function(message, source, lineno, colno, error) {
+    showError(`Ошибка: ${message}`);
+    return true;
+};
+
 function showError(message) {
     const errorElement = document.getElementById('errorMessage');
     errorElement.textContent = message;
@@ -39,18 +45,31 @@ function showError(message) {
 
 function initAudioContext() {
     if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        gainNode = audioContext.createGain();
-        if (audio && !source) {
-            source = audioContext.createMediaElementSource(audio);
-            source.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            gainNode = audioContext.createGain();
+            
+            // Переподключение источника при каждой инициализации
+            if (audio && !source) {
+                source = audioContext.createMediaElementSource(audio);
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+            }
+        } catch (error) {
+            showError('Аудио не поддерживается в этом браузере');
+            return false;
         }
     }
+    return true;
 }
 
 function initPlaylist() {
     const playlist = document.getElementById('playlist');
+    if (!playlist) {
+        showError('Элемент плейлиста не найден');
+        return;
+    }
+    
     playlist.innerHTML = '';
     
     tracks.forEach((track, index) => {
@@ -69,9 +88,13 @@ function initPlaylist() {
 }
 
 function initVolume() {
-    initAudioContext();
+    if (!initAudioContext()) return;
+    
     const volume = document.getElementById('volume');
-    if (!gainNode) return;
+    if (!gainNode) {
+        showError('Ошибка инициализации аудио');
+        return;
+    }
     
     volume.addEventListener('input', (e) => {
         gainNode.gain.value = e.target.value;
@@ -85,10 +108,12 @@ function initVolume() {
 
 function initProgressBar() {
     const progressBar = document.getElementById('progressBar');
+    if (!progressBar) return;
+    
     progressBar.addEventListener('click', (e) => {
         const rect = progressBar.getBoundingClientRect();
         const percent = (e.clientX - rect.left) / rect.width;
-        if (audio.duration) {
+        if (audio.duration && !isNaN(audio.duration)) {
             audio.currentTime = percent * audio.duration;
         }
     });
@@ -119,9 +144,19 @@ function toggleTheme() {
 
 function playTrack(index) {
     try {
+        if (index < 0 || index >= tracks.length) {
+            throw new Error('Недопустимый индекс трека');
+        }
+        
         currentTrack = index;
         const track = tracks[index];
-        if (!track.file) throw new Error('Трек не найден');
+        if (!track?.file) throw new Error('Трек не найден');
+        
+        // Сброс предыдущего источника
+        if (source) {
+            source.disconnect();
+            source = null;
+        }
         
         audio.src = track.file;
         document.getElementById('track-title').textContent = track.title;
@@ -130,6 +165,7 @@ function playTrack(index) {
         
         audio.play().then(() => {
             document.getElementById('player-cover').classList.add('playing');
+            initAudioContext(); // Переинициализация контекста
         }).catch(error => {
             showError('Ошибка воспроизведения: ' + error.message);
         });
@@ -141,6 +177,11 @@ function playTrack(index) {
 }
 
 function togglePlay() {
+    if (!audio.src) {
+        showError('Выберите трек для воспроизведения');
+        return;
+    }
+    
     if (audio.paused) {
         audio.play().then(() => {
             document.getElementById('player-cover').classList.add('playing');
@@ -156,35 +197,49 @@ function togglePlay() {
 }
 
 function updatePlayButton(playing) {
-    document.getElementById('playBtn').innerHTML = 
-        playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+    const playBtn = document.getElementById('playBtn');
+    if (playBtn) {
+        playBtn.innerHTML = playing 
+            ? '<i class="fas fa-pause"></i>' 
+            : '<i class="fas fa-play"></i>';
+    }
 }
 
 function skip(seconds) {
-    if (audio.duration) {
-        audio.currentTime = Math.min(Math.max(audio.currentTime + seconds, 0), audio.duration);
-    }
+    if (!audio.duration || isNaN(audio.duration)) return;
+    
+    const newTime = audio.currentTime + seconds;
+    audio.currentTime = Math.max(0, Math.min(newTime, audio.duration));
 }
 
 function toggleMute() {
     audio.muted = !audio.muted;
     const volumeIcon = document.getElementById('volumeIcon');
-    volumeIcon.classList.toggle('muted', audio.muted);
-    volumeIcon.className = audio.muted 
-        ? 'fas fa-volume-mute' 
-        : 'fas fa-volume-up';
+    if (volumeIcon) {
+        volumeIcon.classList.toggle('muted', audio.muted);
+        volumeIcon.className = audio.muted 
+            ? 'fas fa-volume-mute' 
+            : 'fas fa-volume-up';
+    }
 }
 
+// Обновленный обработчик события play
 audio.addEventListener('play', () => {
+    if (!initAudioContext()) return;
+    
     if (!source) {
-        initAudioContext();
+        source = audioContext.createMediaElementSource(audio);
+        source.connect(gainNode);
     }
 });
 
 audio.ontimeupdate = () => {
     if (audio.duration && !isNaN(audio.duration)) {
         const progress = (audio.currentTime / audio.duration) * 100;
-        document.getElementById('progress').style.width = `${progress}%`;
+        const progressBar = document.getElementById('progress');
+        if (progressBar) {
+            progressBar.style.width = `${progress}%`;
+        }
     }
 };
 
@@ -203,13 +258,19 @@ audio.onerror = () => {
 };
 
 function init() {
-    document.querySelector('.logo').src = config.logoPath;
-    initPlaylist();
-    initVolume();
-    initProgressBar();
-    initTheme();
-    document.body.addEventListener('touchstart', initAudioContext);
-    document.addEventListener('click', initAudioContext);
+    try {
+        document.querySelector('.logo').src = config.logoPath;
+        initPlaylist();
+        initVolume();
+        initProgressBar();
+        initTheme();
+        
+        // Обработчики для инициализации аудио по взаимодействию
+        document.body.addEventListener('touchstart', initAudioContext);
+        document.addEventListener('click', initAudioContext);
+    } catch (error) {
+        showError('Ошибка инициализации: ' + error.message);
+    }
 }
 
 window.addEventListener('DOMContentLoaded', init);
