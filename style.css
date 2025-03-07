@@ -308,3 +308,313 @@ input[type="range"] {
         height: 100px;
     }
 }
+:root {
+    --primary: #7000ff;
+    --secondary: #ff00a0;
+    --background: #0a0a0a;
+    --surface: rgba(255, 255, 255, 0.05);
+    --text: #ffffff;
+    --glass: rgba(255, 255, 255, 0.1);
+    --gradient: linear-gradient(45deg, var(--primary), var(--secondary));
+    --container-width: min(1400px, 90%);
+    --glow: 0 0 10px rgba(112, 0, 255, 0.5);
+}
+
+[data-theme="light"] {
+    --background: #f5f5f5;
+    --surface: rgba(0, 0, 0, 0.05);
+    --text: #0a0a0a;
+    --glass: rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--background);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.background-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, rgba(112, 0, 255, 0.1) 0%, transparent 60%);
+    z-index: -1;
+    animation: bg-pulse 10s infinite alternate;
+}
+
+@keyframes bg-pulse {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.2);
+    }
+}
+
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    animation: glow-text 2s infinite;
+}
+
+@keyframes glow-text {
+    0%, 100% {
+        text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 30px var(--primary);
+    }
+    50% {
+        text-shadow: 0 0 20px var(--secondary), 0 0 30px var(--secondary), 0 0 40px var(--secondary);
+    }
+}
+
+.logo span {
+    color: var(--primary);
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin-top: 30px;
+}
+
+.visualizer {
+    height: 150px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 4px;
+    padding: 20px;
+    background: var(--surface);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.visualizer-bar {
+    width: 8px;
+    background: var(--gradient);
+    border-radius: 4px;
+    transition: height 0.1s ease;
+}
+
+.playlist-section {
+    background: var(--surface);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+}
+
+.playlist {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.track-card {
+    background: var(--glass);
+    border-radius: 15px;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.track-card:hover {
+    transform: translateY(-5px);
+}
+
+.track-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.player {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    padding: 15px 5%;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.cover-art {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.cover-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vinyl-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.5));
+    border-radius: 50%;
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.track-info {
+    flex-grow: 1;
+    min-width: 150px;
+}
+
+.track-info h2 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    animation: text-glow 2s infinite;
+}
+
+@keyframes text-glow {
+    0%, 100% {
+        text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 30px var(--primary);
+    }
+    50% {
+        text-shadow: 0 0 20px var(--secondary), 0 0 30px var(--secondary), 0 0 40px var(--secondary);
+    }
+}
+
+.track-info p {
+    font-size: 0.875rem;
+    color: #888;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.control-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: var(--glass);
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: var(--glow);
+}
+
+.control-btn:hover {
+    box-shadow: 0 0 20px rgba(112, 0, 255, 0.7);
+}
+
+.control-btn.main {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient);
+    color: white;
+}
+
+.progress-container {
+    flex-grow: 1;
+    max-width: 400px;
+    cursor: pointer;
+}
+
+.progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: var(--gradient);
+    width: 0;
+    transition: width 0.1s linear;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 120px;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 4px;
+    accent-color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .playlist {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .player {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .track-info {
+        order: -1;
+        width: 100%;
+        text-align: center;
+    }
+
+    .visualizer {
+        height: 100px;
+    }
+}
