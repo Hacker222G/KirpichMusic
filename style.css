@@ -7,6 +7,7 @@
     --glass: rgba(255, 255, 255, 0.1);
     --gradient: linear-gradient(45deg, var(--primary), var(--secondary));
     --container-width: min(1400px, 90%);
+    --glow: 0 0 10px rgba(112, 0, 255, 0.5);
 }
 
 [data-theme="light"] {
@@ -67,6 +68,16 @@ body {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text);
+    animation: glow-text 2s infinite;
+}
+
+@keyframes glow-text {
+    0%, 100% {
+        text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 30px var(--primary);
+    }
+    50% {
+        text-shadow: 0 0 20px var(--secondary), 0 0 30px var(--secondary), 0 0 40px var(--secondary);
+    }
 }
 
 .logo span {
@@ -193,6 +204,16 @@ body {
 .track-info h2 {
     font-size: 1rem;
     margin-bottom: 5px;
+    animation: text-glow 2s infinite;
+}
+
+@keyframes text-glow {
+    0%, 100% {
+        text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary), 0 0 30px var(--primary);
+    }
+    50% {
+        text-shadow: 0 0 20px var(--secondary), 0 0 30px var(--secondary), 0 0 40px var(--secondary);
+    }
 }
 
 .track-info p {
@@ -218,6 +239,11 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    box-shadow: var(--glow);
+}
+
+.control-btn:hover {
+    box-shadow: 0 0 20px rgba(112, 0, 255, 0.7);
 }
 
 .control-btn.main {
@@ -230,6 +256,7 @@ body {
 .progress-container {
     flex-grow: 1;
     max-width: 400px;
+    cursor: pointer;
 }
 
 .progress-bar {
