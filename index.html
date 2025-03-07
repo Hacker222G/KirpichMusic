@@ -2,47 +2,58 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>KirpichMusic</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css"> <!-- Добавлено подключение стилей -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="theme-switcher" onclick="toggleTheme()">
         <i id="theme-icon" class="fas fa-moon"></i>
     </div>
 
-    <img class="logo" src="logo.png" alt="Логотип">
+    <img class="logo" src="logo.png" alt="Логотип" onerror="this.style.display='none'">
 
     <div class="container">
-        <h1>Моя музыка</h1>
-        <div class="playlist" id="playlist"></div> <!-- Исправлен ID -->
+        <h1>Музыка</h1>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="playlist" id="playlist"></div>
     </div>
 
     <div class="player" id="player">
-        <img class="player-cover" id="player-cover" src="covers/default.jpg" alt="Обложка">
+        <img class="player-cover" id="player-cover" src="covers/default.jpg" alt="Обложка" 
+             onerror="this.src='covers/default.jpg'">
         <div class="player-controls">
             <div class="track-info">
-                <h3 id="track-title">Выберите трек</h3> <!-- Добавлен ID -->
-                <p id="track-artist">-</p> <!-- Добавлен ID -->
+                <h3 id="track-title">Выберите трек</h3>
+                <p id="track-artist">-</p>
             </div>
             <div class="progress-bar" id="progressBar">
                 <div class="progress" id="progress"></div>
             </div>
             <div class="controls">
-                <button onclick="skip(-10)"><i class="fas fa-backward"></i></button>
-                <button onclick="togglePlay()" id="playBtn"><i class="fas fa-play"></i></button>
-                <button onclick="skip(10)"><i class="fas fa-forward"></i></button>
+                <button onclick="skip(-10)" class="control-btn">
+                    <i class="fas fa-backward"></i>
+                </button>
+                <button onclick="togglePlay()" id="playBtn" class="control-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button onclick="skip(10)" class="control-btn">
+                    <i class="fas fa-forward"></i>
+                </button>
                 <div class="volume-container">
-                    <button onclick="toggleMute()"><i class="fas fa-volume-up" id="volumeIcon"></i></button>
-                    <input type="range" id="volume" min="0" max="2" step="0.1" value="1">
+                    <button onclick="toggleMute()" class="volume-btn">
+                        <i class="fas fa-volume-up" id="volumeIcon"></i>
+                    </button>
+                    <input type="range" id="volume" min="0" max="2" step="0.1" value="1" class="volume-slider">
                 </div>
             </div>
         </div>
     </div>
 
-    <audio id="audio"></audio>
-    <script src="script.js"></script> <!-- Добавлено подключение скриптов -->
+    <audio id="audio" playsinline></audio>
+    <script src="script.js"></script>
 </body>
 </html>
