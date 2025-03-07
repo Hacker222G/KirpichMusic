@@ -1,1 +1,236 @@
+:root {
+    --primary: #1ed760;
+    --secondary: #2d46b9;
+    --background: #121212;
+    --surface: #181818;
+    --text: #ffffff;
+    --progress-bg: #404040;
+    --shadow: rgba(0,0,0,0.3);
+    --gradient: linear-gradient(135deg, #2d46b9 0%, #1ed760 100%);
+}
 
+[data-theme="light"] {
+    --primary: #1ed760;
+    --background: #ffffff;
+    --surface: #f8f9fa;
+    --text: #212529;
+    --progress-bg: #e9ecef;
+    --shadow: rgba(0,0,0,0.1);
+}
+
+body {
+    margin: 0;
+    padding: 80px 0 120px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.logo {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    height: 40px;
+    z-index: 1000;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.playlist {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.track-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.track-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.track-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+.track-card:hover::before {
+    opacity: 0.1;
+}
+
+.cover {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    object-fit: cover;
+}
+
+.player {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(24, 24, 24, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.player-cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    transition: all 0.3s;
+}
+
+.player-cover.playing {
+    border-radius: 50%;
+    animation: rotate 20s linear infinite, float 3s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.progress-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    margin: 15px 0;
+    cursor: pointer;
+}
+
+.progress {
+    height: 100%;
+    background: var(--gradient);
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+button {
+    background: var(--surface);
+    border: none;
+    padding: 12px;
+    border-radius: 50%;
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.1),
+                -4px -4px 8px rgba(255,255,255,0.05);
+    transition: all 0.3s;
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+button:hover {
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.1),
+                -2px -2px 4px rgba(255,255,255,0.05);
+    transform: scale(0.95);
+}
+
+.track-info h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-info p {
+    margin: 4px 0 0;
+    color: #a0a0a0;
+    font-size: 0.9rem;
+}
+
+.volume-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 140px;
+}
+
+#volume {
+    width: 100%;
+    accent-color: var(--primary);
+}
+
+.theme-switcher {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--surface);
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.1),
+                -4px -4px 8px rgba(255,255,255,0.05);
+    z-index: 1000;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@media (max-width: 768px) {
+    .player {
+        flex-direction: column;
+        padding: 16px;
+        gap: 16px;
+    }
+    
+    .player-cover {
+        width: 60px;
+        height: 60px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .playlist {
+        grid-template-columns: 1fr;
+    }
+}
