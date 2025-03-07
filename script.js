@@ -26,6 +26,7 @@ function initAudioContext() {
     analyser.connect(audioContext.destination);
     analyser.fftSize = 256;
     dataArray = new Uint8Array(analyser.frequencyBinCount);
+    updateVisualizer(); // Start visualizer immediately
 }
 
 function createVisualizer() {
@@ -79,7 +80,6 @@ function togglePlay() {
     if (audio.paused) {
         audio.play();
         if (!audioContext) initAudioContext();
-        updateVisualizer(); // Start visualizer when playback starts
     } else {
         audio.pause();
     }
