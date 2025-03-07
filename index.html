@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KirpichMusic</title>
+    <title>Music Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -11,9 +11,19 @@
             --background: #121212;
             --surface: #181818;
             --text: #ffffff;
+            --progress-bg: #404040;
+            --shadow: rgba(0,0,0,0.3);
         }
 
-        /* Добавлен логотип */
+        [data-theme="light"] {
+            --primary: #1ED760;
+            --background: #ffffff;
+            --surface: #f8f9fa;
+            --text: #212529;
+            --progress-bg: #e9ecef;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
         .logo {
             position: fixed;
             top: 20px;
@@ -64,7 +74,7 @@
             aspect-ratio: 1;
             border-radius: 4px;
             margin-bottom: 12px;
-            object-fit: cover; /* Фикс для обложек */
+            object-fit: cover;
         }
 
         .player {
@@ -80,7 +90,6 @@
             box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
         }
 
-        /* Анимация вращения обложки */
         .player-cover.playing {
             animation: rotate 20s linear infinite;
         }
@@ -103,7 +112,7 @@
 
         .progress-bar {
             height: 4px;
-            background: #404040;
+            background: var(--progress-bg);
             margin: 10px 0;
             border-radius: 2px;
             cursor: pointer;
@@ -150,7 +159,6 @@
             font-size: 14px;
         }
 
-        /* Новые фишки */
         .volume-container {
             display: flex;
             align-items: center;
@@ -161,6 +169,18 @@
         #volume {
             width: 100%;
             accent-color: var(--primary);
+        }
+
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--surface);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px var(--shadow);
+            z-index: 1000;
         }
 
         @media (max-width: 600px) {
@@ -177,11 +197,14 @@
     </style>
 </head>
 <body>
-    <!-- Логотип (путь можно изменить) -->
+    <div class="theme-switcher" onclick="toggleTheme()">
+        <i id="theme-icon" class="fas fa-moon"></i>
+    </div>
+
     <img class="logo" src="logo.png" alt="Логотип">
 
     <div class="container">
-        <h1>М</h1>
+        <h1>Моя музыка</h1>
         <div class="playlist" id="playlist"></div>
     </div>
 
@@ -201,7 +224,7 @@
                 <button onclick="skip(10)"><i class="fas fa-forward"></i></button>
                 <div class="volume-container">
                     <button onclick="toggleMute()"><i class="fas fa-volume-up" id="volumeIcon"></i></button>
-                    <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+                    <input type="range" id="volume" min="0" max="2" step="0.1" value="1">
                 </div>
             </div>
         </div>
@@ -210,10 +233,11 @@
     <audio id="audio"></audio>
 
     <script>
-        // Конфигурация (можно менять)
+        let source;
         const config = {
-            logoPath: "logo.png", // Путь к логотипу
-            defaultCover: "covers/default.jpg" // Дефолтная обложка
+            logoPath: "logo.png",
+            defaultCover: "covers/default.jpg",
+            maxVolumeBoost: 2.0
         };
 
         const tracks = [
@@ -233,21 +257,18 @@
 
         const audio = document.getElementById('audio');
         let currentTrack = 0;
-        let isDragging = false;
+        let audioContext, gainNode;
 
-        // Инициализация
-        function init() {
-            // Установка логотипа
-            document.querySelector('.logo').src = config.logoPath;
-            
-            initPlaylist();
-            initVolume();
-            initProgressBar();
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                gainNode = audioContext.createGain();
+            }
         }
 
-        // Плейлист
         function initPlaylist() {
             const playlist = document.getElementById('playlist');
+            playlist.innerHTML = '';
             
             tracks.forEach((track, index) => {
                 const card = document.createElement('div');
@@ -264,7 +285,50 @@
             });
         }
 
-        // Воспроизведение трека
+        function initVolume() {
+            const volume = document.getElementById('volume');
+            volume.addEventListener('input', (e) => {
+                gainNode.gain.value = e.target.value;
+                localStorage.setItem('volume', e.target.value);
+            });
+            
+            const savedVolume = localStorage.getItem('volume') || 1;
+            gainNode.gain.value = savedVolume;
+            volume.value = savedVolume;
+        }
+
+        function initProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.addEventListener('click', (e) => {
+                const rect = progressBar.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audio.currentTime = percent * audio.duration;
+            });
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                document.getElementById('theme-icon').className = 'fas fa-sun';
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const isDark = body.getAttribute('data-theme') !== 'light';
+            
+            if (isDark) {
+                body.setAttribute('data-theme', 'light');
+                document.getElementById('theme-icon').className = 'fas fa-sun';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.removeAttribute('data-theme');
+                document.getElementById('theme-icon').className = 'fas fa-moon';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
         function playTrack(index) {
             currentTrack = index;
             const track = tracks[index];
@@ -278,38 +342,6 @@
             updatePlayButton(true);
         }
 
-        // Громкость
-        function initVolume() {
-            const volume = document.getElementById('volume');
-            volume.addEventListener('input', (e) => {
-                audio.volume = e.target.value;
-                localStorage.setItem('volume', e.target.value);
-            });
-            
-            // Восстановление громкости
-            const savedVolume = localStorage.getItem('volume') || 1;
-            audio.volume = savedVolume;
-            volume.value = savedVolume;
-        }
-
-        function toggleMute() {
-            audio.muted = !audio.muted;
-            document.getElementById('volumeIcon').className = 
-                audio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-        }
-
-        // Прогресс-бар
-        function initProgressBar() {
-            const progressBar = document.getElementById('progressBar');
-            
-            progressBar.addEventListener('click', (e) => {
-                const rect = progressBar.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                audio.currentTime = percent * audio.duration;
-            });
-        }
-
-        // Управление воспроизведением
         function togglePlay() {
             if(audio.paused) {
                 audio.play().then(() => {
@@ -328,26 +360,45 @@
                 playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
         }
 
-        // Перемотка
         function skip(seconds) {
             audio.currentTime += seconds;
         }
 
-        // Обновление прогресса
-        audio.ontimeupdate = () => {
-            if(!isDragging) {
-                const progress = (audio.currentTime / audio.duration) * 100;
-                document.getElementById('progress').style.width = `${progress}%`;
+        function toggleMute() {
+            audio.muted = !audio.muted;
+            document.getElementById('volumeIcon').className = 
+                audio.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+        }
+
+        audio.addEventListener('play', () => {
+            if (!source) {
+                initAudioContext();
+                source = audioContext.createMediaElementSource(audio);
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
             }
+        });
+
+        audio.ontimeupdate = () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
         };
 
-        // Следующий трек при завершении
         audio.onended = () => {
             if(currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
         };
 
-        // Запуск
-        init();
+        function init() {
+            document.querySelector('.logo').src = config.logoPath;
+            initPlaylist();
+            initVolume();
+            initProgressBar();
+            initTheme();
+            document.body.addEventListener('touchstart', initAudioContext);
+            document.addEventListener('click', initAudioContext);
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
