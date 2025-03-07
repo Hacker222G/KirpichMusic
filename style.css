@@ -1,59 +1,83 @@
 :root {
-    --primary: #1DB954;
-    --secondary: #2d46b9;
-    --background: #121212;
-    --surface: #181818;
+    --primary: #7000ff;
+    --secondary: #ff00a0;
+    --background: #0a0a0a;
+    --surface: #1a1a1a;
     --text: #ffffff;
-    --progress-bg: #404040;
-    --shadow: rgba(0,0,0,0.3);
-    --gradient: linear-gradient(135deg, #2d46b9 0%, #1DB954 100%);
+    --glass: rgba(255, 255, 255, 0.05);
+    --gradient: linear-gradient(45deg, var(--primary), var(--secondary));
 }
 
 [data-theme="light"] {
-    --primary: #1DB954;
-    --background: #ffffff;
-    --surface: #f8f9fa;
-    --text: #212529;
-    --progress-bg: #e9ecef;
-    --shadow: rgba(0,0,0,0.1);
+    --background: #f5f5f5;
+    --surface: #ffffff;
+    --text: #0a0a0a;
+    --glass: rgba(0, 0, 0, 0.05);
 }
 
 body {
     margin: 0;
-    padding: 80px 0 120px;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', sans-serif;
     background: var(--background);
     color: var(--text);
-    line-height: 1.6;
-    touch-action: manipulation;
+    transition: all 0.3s ease;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 5%;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
 }
 
 .logo {
-    position: fixed;
-    top: 20px;
-    left: 20px;
     height: 40px;
-    z-index: 1000;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 0 15px var(--primary));
 }
 
-.container {
-    max-width: 1200px;
+.hero {
+    text-align: center;
+    padding: 4rem 5%;
+}
+
+.hero-title {
+    font-size: 3rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 2rem;
+}
+
+.search-bar {
+    max-width: 600px;
     margin: 0 auto;
-    padding: 20px;
+    position: relative;
 }
 
-.playlist {
+.search-bar input {
+    width: 100%;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 50px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.1rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.playlist-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    margin-top: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 2rem 5%;
 }
 
 .track-card {
     background: var(--surface);
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: 15px;
+    padding: 1.5rem;
     transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
     position: relative;
@@ -62,39 +86,43 @@ body {
 
 .track-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-.cover {
+.player-glass {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 2rem;
+    margin: 2rem 5%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cover-art {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 2rem;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.cover-art img {
     width: 100%;
-    aspect-ratio: 1;
-    border-radius: 8px;
-    margin-bottom: 12px;
+    height: 100%;
     object-fit: cover;
+    border-radius: 15px;
 }
 
-.player {
-    position: fixed;
-    bottom: 0;
+.vinyl-effect {
+    position: absolute;
+    top: 0;
     left: 0;
-    right: 0;
-    background: rgba(24, 24, 24, 0.95);
-    backdrop-filter: blur(16px);
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    z-index: 1000;
-}
-
-.player-cover {
-    width: 80px;
-    height: 80px;
-    border-radius: 8px;
-    transition: all 0.3s;
-}
-
-.player-cover.playing {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5)));
+    border-radius: 50%;
     animation: rotate 20s linear infinite;
 }
 
@@ -103,90 +131,53 @@ body {
     to { transform: rotate(360deg); }
 }
 
-.progress-bar {
-    height: 4px;
-    background: var(--progress-bg);
-    margin: 15px 0;
-    border-radius: 2px;
-    cursor: pointer;
-}
-
-.progress {
-    height: 100%;
-    background: var(--gradient);
-    width: 0;
-    transition: width 0.1s linear;
-}
-
-.controls {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
 .control-btn {
     background: var(--surface);
     border: none;
-    padding: 15px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: transform 0.2s;
-    color: var(--text);
+    transition: all 0.3s ease;
 }
 
-.control-btn:active {
-    transform: scale(0.9);
-}
-
-.volume-btn {
-    background: none;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    color: var(--text);
-}
-
-.volume-slider {
-    width: 100px;
-    height: 4px;
-    accent-color: var(--primary);
-}
-
-.error-message {
-    color: #ff4444;
-    padding: 10px;
-    text-align: center;
-    display: none;
-}
-
-.error-message.visible {
-    display: block;
+.control-btn.main {
+    width: 70px;
+    height: 70px;
+    background: var(--gradient);
+    color: white;
 }
 
 .theme-switcher {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    bottom: 30px;
+    right: 30px;
     background: var(--surface);
-    padding: 12px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    z-index: 1000;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 @media (max-width: 768px) {
-    .player {
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px;
+    .hero-title {
+        font-size: 2rem;
     }
     
-    .player-cover {
-        width: 60px;
-        height: 60px;
+    .player-glass {
+        padding: 1.5rem;
+        margin: 1rem;
     }
     
-    .control-btn {
-        padding: 12px;
+    .cover-art {
+        width: 150px;
+        height: 150px;
     }
 }
