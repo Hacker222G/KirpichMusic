@@ -39,15 +39,15 @@ function createVisualizer() {
 
 function updateVisualizer() {
     if (!analyser) return;
-    
+
     analyser.getByteFrequencyData(dataArray);
     const bars = visualizer.children;
-    
+
     for (let i = 0; i < bars.length; i++) {
         const height = dataArray[i] / 2;
         bars[i].style.height = `${height}px`;
     }
-    
+
     requestAnimationFrame(updateVisualizer);
 }
 
@@ -69,7 +69,7 @@ function playTrack(index) {
     audio.play().catch(() => {
         alert('Нажмите на трек для активации');
     });
-    
+
     document.getElementById('track-title').textContent = track.title;
     document.getElementById('track-artist').textContent = track.artist;
     document.getElementById('player-cover').src = track.cover;
@@ -79,6 +79,7 @@ function togglePlay() {
     if (audio.paused) {
         audio.play();
         if (!audioContext) initAudioContext();
+        updateVisualizer(); // Start visualizer when playback starts
     } else {
         audio.pause();
     }
@@ -97,7 +98,7 @@ function skip(seconds) {
 function toggleTheme() {
     const body = document.body;
     const isDark = body.getAttribute('data-theme') !== 'light';
-    
+
     if (isDark) {
         body.setAttribute('data-theme', 'light');
         document.getElementById('theme-icon').className = 'fas fa-sun';
@@ -105,7 +106,7 @@ function toggleTheme() {
         body.removeAttribute('data-theme');
         document.getElementById('theme-icon').className = 'fas fa-moon';
     }
-    
+
     localStorage.setItem('theme', isDark ? 'light' : 'dark');
 }
 
@@ -121,7 +122,6 @@ function initTheme() {
 initPlaylist();
 initTheme();
 createVisualizer();
-updateVisualizer();
 
 audio.addEventListener('timeupdate', () => {
     const progress = (audio.currentTime / audio.duration) * 100 || 0;
