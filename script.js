@@ -15,17 +15,47 @@ const tracks = [
 
 const audio = new Audio();
 let currentTrack = 0;
+let audioContext, analyser, dataArray;
+const visualizer = document.getElementById('visualizer');
 
-function handleAudioError(error) {
-    console.error('Audio error:', error);
-    alert('Ошибка воспроизведения аудио');
+function initAudioContext() {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+    analyser.fftSize = 64;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+}
+
+function createVisualizer() {
+    visualizer.innerHTML = '';
+    for (let i = 0; i < 32; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'visualizer-bar';
+        visualizer.appendChild(bar);
+    }
+}
+
+function updateVisualizer() {
+    if (!analyser) return;
+    
+    analyser.getByteFrequencyData(dataArray);
+    const bars = visualizer.children;
+    
+    for (let i = 0; i < bars.length; i++) {
+        const height = dataArray[i] / 2;
+        bars[i].style.height = `${height}px`;
+    }
+    
+    requestAnimationFrame(updateVisualizer);
 }
 
 function initPlaylist() {
     const playlist = document.getElementById('playlist');
     playlist.innerHTML = tracks.map((track, index) => `
         <div class="track-card" onclick="playTrack(${index})">
-            <img class="cover" src="${track.cover}" alt="${track.title}">
+            <img src="${track.cover}" alt="${track.title}">
             <h3>${track.title}</h3>
             <p>${track.artist}</p>
         </div>
@@ -33,33 +63,24 @@ function initPlaylist() {
 }
 
 function playTrack(index) {
-    try {
-        if (index < 0 || index >= tracks.length) return;
-        
-        currentTrack = index;
-        const track = tracks[index];
-        
-        if (!track.file) throw new Error('Файл трека не найден');
-        
-        audio.src = track.file;
-        audio.play().catch(handleAudioError);
-        
-        document.getElementById('track-title').textContent = track.title;
-        document.getElementById('track-artist').textContent = track.artist;
-        document.getElementById('player-cover').src = track.cover;
-        
-    } catch (error) {
-        handleAudioError(error);
-    }
+    currentTrack = index;
+    const track = tracks[index];
+    audio.src = track.file;
+    audio.play().catch(() => {
+        alert('Нажмите на трек для активации');
+    });
+    
+    document.getElementById('track-title').textContent = track.title;
+    document.getElementById('track-artist').textContent = track.artist;
+    document.getElementById('player-cover').src = track.cover;
 }
 
 function togglePlay() {
     if (audio.paused) {
         audio.play();
-        document.querySelector('.cover-art').classList.add('playing');
+        if (!audioContext) initAudioContext();
     } else {
         audio.pause();
-        document.querySelector('.cover-art').classList.remove('playing');
     }
     updatePlayButton();
 }
@@ -96,12 +117,11 @@ function initTheme() {
     }
 }
 
-function preloadCovers() {
-    tracks.forEach(track => {
-        const img = new Image();
-        img.src = track.cover;
-    });
-}
+// Инициализация
+initPlaylist();
+initTheme();
+createVisualizer();
+updateVisualizer();
 
 audio.addEventListener('timeupdate', () => {
     const progress = (audio.currentTime / audio.duration) * 100 || 0;
@@ -112,14 +132,6 @@ audio.addEventListener('ended', () => {
     if (currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
 });
 
-document.getElementById('volume').addEventListener('input', function(e) {
-    audio.volume = Math.min(3, Math.max(0, parseFloat(e.target.value)));
+document.getElementById('volume').addEventListener('input', (e) => {
+    audio.volume = e.target.value;
 });
-
-audio.addEventListener('error', handleAudioError);
-
-// Инициализация
-initPlaylist();
-initTheme();
-preloadCovers();
-audio.volume = 0.5;
