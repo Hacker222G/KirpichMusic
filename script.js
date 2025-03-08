@@ -25,6 +25,7 @@ const tracks = [
     }
 ];
 
+
 const audio = new Audio();
 let currentTrack = 0;
 let audioContext, analyser, dataArray;
