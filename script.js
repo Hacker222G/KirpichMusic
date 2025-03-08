@@ -12,6 +12,12 @@ const tracks = [
         cover: "covers/tetoris.jpg"
     },
     {
+        title: "Confessions of a Rotten Girl",
+        artist: "SAWTOWNE, Hatsune Miku",
+        file: "music/SAWTOWNE_feat_Hatsune_Miku_-_Confessions_of_a_Rotten_Girl_78980798.mp3",
+        cover: "covers/rottengirl.jpg"
+    },
+    {
         title: "ТРАМБОЛОН",
         artist: "maxxytren, bulk_machine",
         file: "music/trambolon.mp3",
