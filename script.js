@@ -25,9 +25,10 @@ const tracks = [
     }
 ];
 
-
 const audio = new Audio();
 let currentTrack = 0;
+let isShuffled = false;
+let isLooped = false;
 let audioContext, analyser, dataArray;
 const visualizer = document.getElementById('visualizer');
 
@@ -159,6 +160,20 @@ function drop(event, index) {
     initPlaylist();
 }
 
+function shuffleTracks() {
+    for (let i = tracks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tracks[i], tracks[j]] = [tracks[j], tracks[i]];
+    }
+    initPlaylist();
+    isShuffled = true;
+}
+
+function toggleLoop() {
+    isLooped = !isLooped;
+    // Добавьте визуальное отображение состояния повтора, если необходимо
+}
+
 // Инициализация
 initPlaylist();
 initTheme();
@@ -170,7 +185,11 @@ audio.addEventListener('timeupdate', () => {
 });
 
 audio.addEventListener('ended', () => {
-    if (currentTrack < tracks.length - 1) playTrack(currentTrack + 1);
+    if (isLooped) {
+        playTrack(currentTrack);
+    } else if (currentTrack < tracks.length - 1) {
+        playTrack(currentTrack + 1);
+    }
 });
 
 document.getElementById('volume').addEventListener('input', (e) => {
