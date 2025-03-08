@@ -69,7 +69,7 @@ function updateVisualizer() {
 function initPlaylist() {
     const playlist = document.getElementById('playlist');
     playlist.innerHTML = tracks.map((track, index) => `
-        <div class="track-card" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event, ${index})" onclick="playTrack(${index})">
+        <div class="track-card" draggable="true" data-index="${index}" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event, ${index})" onclick="playTrack(${index})">
             <img src="${track.cover}" alt="${track.title}">
             <h3>${track.title}</h3>
             <p>${track.artist}</p>
