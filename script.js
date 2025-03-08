@@ -22,6 +22,12 @@ const tracks = [
         artist: "maxxytren, bulk_machine",
         file: "music/trambolon.mp3",
         cover: "covers/trambolon.jpg"
+    },
+    {
+        title: "The World Is Mine",
+        artist: "Hatsune Miku",
+        file: "music/worldismine.mp3",
+        cover: "covers/worldismine.jpg"
     }
 ];
 
