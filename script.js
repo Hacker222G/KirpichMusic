@@ -1,5 +1,23 @@
 const tracks = [
     {
+        title: "Sky High",
+        artist: "NoCopyrightSounds",
+        file: "music/skynigh.mp3",
+        cover: "covers/skynigh.jpg"
+    },
+    {
+        title: "Invisible",
+        artist: "NoCopyrightSounds",
+        file: "music/invisible.mp3",
+        cover: "covers/skynigh.jpg"
+    },
+    {
+        title: "Invincible",
+        artist: "NoCopyrightSounds",
+        file: "music/invincible.mp3",
+        cover: "covers/skynigh.jpg"
+    },
+    {
         title: "Konton Boogie",
         artist: "Kasane Teto",
         file: "music/boogie.mp3",
